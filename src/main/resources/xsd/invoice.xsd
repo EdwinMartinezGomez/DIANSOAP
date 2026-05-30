@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://dian.soap/Factura"
+            xmlns="http://dian.soap/Factura"
+            elementFormDefault="qualified">
+
+    <xsd:element name="InvoiceRequest">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="IdentificacionVendedor" type="xsd:string"/>
+                <xsd:element name="NombreVendedor" type="xsd:string"/>
+                <xsd:element name="ActividadProductiva" type="xsd:string"/>
+                <xsd:element name="TelefonoVendedor" type="xsd:string"/>
+                <xsd:element name="CorreoVendedor" type="xsd:string"/>
+
+                <xsd:element name="ProductoVendido" type="xsd:string"/>
+                <xsd:element name="CodigoProducto" type="xsd:string"/>
+                <xsd:element name="PrecioUnitario" type="xsd:decimal"/>
+                <xsd:element name="CantidadVendida" type="xsd:int"/>
+
+                <xsd:element name="NombreCliente" type="xsd:string"/>
+                <xsd:element name="IdentificacionCliente" type="xsd:string"/>
+                <xsd:element name="TelefonoCliente" type="xsd:string"/>
+                <xsd:element name="CorreoCliente" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="InvoiceResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="Status" type="xsd:string"/>
+                <xsd:element name="Message" type="xsd:string"/>
+                <xsd:element name="InvoiceNumber" type="xsd:string"/>
+                <xsd:element name="PdfBase64" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>
