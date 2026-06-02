@@ -23,8 +23,11 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
@@ -45,7 +48,35 @@ public class PdfService {
         try {
             Document doc = new Document(PageSize.A4, 40, 40, 30, 30);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            PdfWriter.getInstance(doc, out);
+            PdfWriter writer = PdfWriter.getInstance(doc, out);
+            writer.setPageEvent(new PdfPageEventHelper() {
+
+                @Override
+                public void onEndPage(
+                        PdfWriter writer,
+                        Document document) {
+
+                    PdfContentByte canvas =
+                        writer.getDirectContentUnder();
+
+                    Font font =
+                        FontFactory.getFont(
+                            FontFactory.HELVETICA_BOLD,
+                            60,
+                            new BaseColor(230,230,230));
+
+                    ColumnText.showTextAligned(
+                        canvas,
+                        Element.ALIGN_CENTER,
+                        new Phrase(
+                            "VALIDADA DIAN",
+                            font),
+                        297,
+                        421,
+                        45);
+                }
+            });
+
             doc.open();
 
             String fecha = LocalDateTime.now()
@@ -117,14 +148,25 @@ public class PdfService {
             Font fNL = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 7, DIAN_GREEN);
             Font fNV = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, DARK);
             Font fNS = FontFactory.getFont(FontFactory.HELVETICA, 7.5f, DARK);
+
+            String prefijo = "FE";
+            String resolucion = "18764012345678";
+            String rango = "FE1 - FE500000";
+
             Paragraph pNum = new Paragraph();
             pNum.setAlignment(Element.ALIGN_CENTER);
-            pNum.add(new Chunk("No. FACTURA\n", fNL));
-            pNum.add(new Chunk(invoiceNumber + "\n\n", fNV));
-            pNum.add(new Chunk("FECHA DE EMISIÓN\n", fNL));
-            pNum.add(new Chunk(fecha + "\n\n", fNS));
-            pNum.add(new Chunk("FORMA DE PAGO\n", fNL));
-            pNum.add(new Chunk("Contado", fNS));
+
+            pNum.add(new Chunk("FACTURA ELECTRÓNICA\n", fNL));
+            pNum.add(new Chunk(prefijo + invoiceNumber + "\n\n", fNV));
+
+            pNum.add(new Chunk("RESOLUCIÓN DIAN\n", fNL));
+            pNum.add(new Chunk(resolucion + "\n\n", fNS));
+
+            pNum.add(new Chunk("RANGO AUTORIZADO\n", fNL));
+            pNum.add(new Chunk(rango + "\n\n", fNS));
+
+            pNum.add(new Chunk("FECHA EMISIÓN\n", fNL));
+            pNum.add(new Chunk(fecha + "\n", fNS));
             cNum.addElement(pNum);
             encabezado.addCell(cNum);
 
@@ -305,6 +347,41 @@ public class PdfService {
             tCufe.addCell(cCufe);
             doc.add(tCufe);
 
+            PdfPTable validacion = new PdfPTable(1);
+            validacion.setWidthPercentage(100);
+
+            PdfPCell estado = new PdfPCell();
+
+            estado.setBorderColor(DIAN_GREEN);
+            estado.setBorderWidth(1f);
+
+            Paragraph pEstado = new Paragraph();
+
+            pEstado.add(new Chunk(
+            "✓ DOCUMENTO VALIDADO POR LA DIAN\n",
+            FontFactory.getFont(
+            FontFactory.HELVETICA_BOLD,
+            10,
+            DIAN_GREEN)));
+
+            pEstado.add(new Chunk(
+            "Ambiente: PRODUCCIÓN\n",
+            FontFactory.getFont(
+            FontFactory.HELVETICA,
+            8)));
+
+            pEstado.add(new Chunk(
+            "Fecha validación: " + fecha,
+            FontFactory.getFont(
+            FontFactory.HELVETICA,
+            8)));
+
+            estado.addElement(pEstado);
+
+            validacion.addCell(estado);
+
+            doc.add(validacion);
+
             // ══════════════════════════════════════
             // 6. OBSERVACIONES + FIRMA
             // ══════════════════════════════════════
@@ -371,10 +448,18 @@ public class PdfService {
                 "El valor legal recae en el XML firmado digitalmente.\n" +
                 "Decreto 358/2020 · Resolución DIAN 000042/2020 · República de Colombia", false));
             pie.addCell(pieCelda("Generado: " + fecha + "\nSistema: DIANSOAP v1.0\nRepública de Colombia", true));
+            
+            PdfPCell pagina = pieCelda(
+            "Página 1 de 1",
+            false);
+
+            pie.addCell(pagina);
 
             doc.add(pie);
             doc.close();
             return out.toByteArray();
+
+            
 
         } catch (Exception ex) {
             throw new IllegalStateException("No fue posible generar el PDF", ex);
