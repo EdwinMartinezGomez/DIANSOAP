@@ -37,6 +37,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom("facturacion.dian.proyecto@gmail.com", "DIAN Facturación");
             helper.setTo(request.getCorreoVendedor());
             helper.setSubject("Confirmación de envío - Factura " + invoiceNumber);
             helper.setText(
@@ -59,7 +60,7 @@ public class EmailService {
             mailSender.send(message);
             logger.info("Correo enviado al vendedor: {}", request.getCorreoVendedor());
 
-        } catch (MessagingException ex) {
+        } catch (MessagingException | java.io.UnsupportedEncodingException ex) {
             logger.error("Error enviando correo para la factura {}", invoiceNumber, ex);
         }
     }
