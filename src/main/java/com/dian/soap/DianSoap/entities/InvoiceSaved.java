@@ -3,6 +3,7 @@ package com.dian.soap.DianSoap.entities;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -106,4 +107,11 @@ public class InvoiceSaved {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    @Column(columnDefinition = "CLOB")
+    private String pdfBase64;
+
+    public String getPdfBase64() { return pdfBase64; }
+    public void setPdfBase64(String pdfBase64) { this.pdfBase64 = pdfBase64; }
+
 }

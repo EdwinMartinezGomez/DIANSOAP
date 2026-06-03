@@ -41,7 +41,7 @@ public class InvoiceService {
         byte[] pdfBytes = pdfService.generateInvoicePdf(request, invoiceNumber, total);
         emailService.sendInvoiceEmail(request, pdfBytes, invoiceNumber);
 
-        // ── Guardar en H2 ──────────────────────────────────────
+        // Guardar en H2 
         BigDecimal subtotal = request.getPrecioUnitario()
             .multiply(BigDecimal.valueOf(request.getCantidadVendida()));
         BigDecimal iva = subtotal.multiply(new BigDecimal("0.19"))
@@ -68,8 +68,9 @@ public class InvoiceService {
         invoice.setIva(iva);
         invoice.setTotal(totalConIva);
         invoice.setEstado("Enviada");
+        invoice.setPdfBase64(Base64.getEncoder().encodeToString(pdfBytes));
         invoiceRepository.save(invoice);
-        // ── Fin guardado ───────────────────────────────────────
+      
 
         InvoiceResponse response = new InvoiceResponse();
         response.setStatus("OK");

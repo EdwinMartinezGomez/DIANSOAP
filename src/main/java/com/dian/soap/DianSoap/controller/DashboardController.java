@@ -1,5 +1,6 @@
 package com.dian.soap.DianSoap.controller;
 
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -9,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dian.soap.DianSoap.entities.InvoiceSaved;
 import com.dian.soap.DianSoap.repository.InvoiceRepository;
-
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -55,5 +56,16 @@ public class DashboardController {
             .distinct().count();
         stats.put("totalVendedores", vendedores);
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/facturas/{id}/pdf")
+    public ResponseEntity<byte[]> descargarPdf(@PathVariable Long id) {
+        return invoiceRepository.findById(id).map(f -> {
+            byte[] pdfBytes = Base64.getDecoder().decode(f.getPdfBase64());
+            return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=" + f.getNumeroFactura() + ".pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
