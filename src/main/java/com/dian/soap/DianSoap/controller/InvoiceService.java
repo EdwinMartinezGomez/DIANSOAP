@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.dian.soap.DianSoap.entities.InvoiceRequest;
@@ -31,7 +32,8 @@ public class InvoiceService {
         this.emailService = emailService;
         this.invoiceRepository = invoiceRepository;
     }
-
+    
+    @Transactional
     public InvoiceResponse processInvoice(InvoiceRequest request) {
         validateRequest(request);
 
